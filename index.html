@@ -86,17 +86,61 @@
   </div>
 
 <script>
-  // 💖 让爱心不断飘起
   const hearts = ["❤️","💖","💗","💓","💞","💕","💘"];
+  const messages = [
+    "按时吃饭",
+    "多穿衣服",
+    "天天开心",
+    "保持微笑",
+    "加油哦",
+    "记得休息",
+    "每天进步一点",
+    "保持好心情",
+    "运动一下",
+    "拥抱自己"
+  ];
+
   function createHeart() {
+    const heartWrapper = document.createElement("div");
+    heartWrapper.style.position = "fixed";
+    heartWrapper.style.bottom = "-20px";
+    heartWrapper.style.left = Math.random() * 100 + "vw";
+    heartWrapper.style.display = "flex";
+    heartWrapper.style.flexDirection = "column";
+    heartWrapper.style.alignItems = "center";
+    heartWrapper.style.pointerEvents = "none"; // 不阻挡鼠标
+
+    // ❤️ 爱心
     const heart = document.createElement("div");
-    heart.className = "floating-heart";
     heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-    heart.style.left = Math.random() * 100 + "vw";
     heart.style.fontSize = 10 + Math.random() * 30 + "px";
-    heart.style.animationDuration = 5 + Math.random() * 6 + "s";
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 10000);
+    heart.style.marginBottom = "2px";
+    heartWrapper.appendChild(heart);
+
+    // 💬 文本
+    const msg = document.createElement("div");
+    msg.textContent = messages[Math.floor(Math.random() * messages.length)];
+    msg.style.color = "#fff";
+    msg.style.fontSize = "12px";
+    msg.style.textShadow = "0 0 3px rgba(0,0,0,0.6)";
+    msg.style.whiteSpace = "nowrap";
+    heartWrapper.appendChild(msg);
+
+    document.body.appendChild(heartWrapper);
+
+    // 随机动画持续时间
+    const duration = 5 + Math.random() * 6;
+
+    heartWrapper.animate([
+      { transform: "translateY(0) scale(0.8)", opacity: 1 },
+      { transform: `translateY(-110vh) scale(1.8)`, opacity: 0 }
+    ], {
+      duration: duration * 1000,
+      easing: "linear",
+      fill: "forwards"
+    });
+
+    setTimeout(() => heartWrapper.remove(), duration * 1000);
   }
 
   setInterval(createHeart, 200);
