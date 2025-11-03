@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>我爱你 — 跳动的爱心</title>
+<style>
+  :root{
+    --bg:#0f0f1a;
+    --heart-red:#ff385c;
+    --heart-dark:#c6284b;
+    --center-size: 220px;
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    background: radial-gradient(circle at 10% 10%, #1a1a2e 0%, var(--bg) 60%);
+    overflow:hidden;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", "Microsoft Yahei", sans-serif;
+  }
+
+  /* 全屏容器 */
+  .stage{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
+
+  /* 小爱心样式（用 CSS 伪元素拼接） */
+  .floating-heart{
+    position:absolute;
+    width:18px;
+    height:18px;
+    transform-origin: center bottom;
+    pointer-events:none;
+    will-change: transform, opacity;
+  }
+  .floating-heart::before,
+  .floating-heart::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background:var(--heart-red);
+  }
+  .floating-heart::before{
+    left:50%;
+  }
+  .floating-heart::after{
+    top:50%;
+  }
+
+  /* 中央大爱心容器 */
+  .center-wrap{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:var(--center-size);
+    height:var(--center-size);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
+  }
+
+  /* 大爱心（用 transform +伪元素绘制）*/
+  .big-heart{
+    position:relative;
+    width:60%;
+    height:60%;
+    transform-origin:center;
+    animation: heartbeat 1s infinite ease-in-out;
+    filter: drop-shadow(0 10px 12px rgba(0,0,0,0.45));
+  }
+  .big-heart::before,
+  .big-heart::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background: linear-gradient(135deg, var(--heart-red), var(--heart-dark));
+  }
+  .big-heart::before{
+    left:50%;
+    transform: translateX(-50%);
+  }
+  .big-heart::after{
+    top:50%;
+    transform: translateY(-50%);
+  }
+  .big-heart > .heart-shape{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%,-50%) rotate(-45deg);
+    width:100%;
+    height:100%;
+    background: linear-gradient(135deg, var(--heart-red), var(--heart-dark));
+    border-radius:0 50% 50% 50%;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25) inset;
+  }
+
+  /* 心中文字 */
+  .center-text{
+    position:absolute;
+    color:#fff;
+    font-size:clamp(18px, 4vw, 28px);
+    font-weight:700;
+    text-align:center;
+    z-index:30;
+    pointer-events:none;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+
+  /* 心跳动画 */
+  @keyframes heartbeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.18); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.12); }
+    70% { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+
+  /* 小爱心漂浮/跳动动画（多种随机效果）*/
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(0.9); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(-30vh) scale(1.05); opacity: 0.9; }
+    100% { transform: translateY(-60vh) scale(0.8); opacity: 0; }
+  }
+  @keyframes sway {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(12px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* 禁选样式（当点击按钮后变灰） */
+  button.disabled {
+    opacity:0.4;
+    cursor: not-allowed;
+  }
+
+  /* 可选的品牌/提醒小文案位置 */
+  .brand{
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    color: rgba(255,255,255,0.7);
+    font-size:14px;
+    z-index:50;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <!-- 中心爱心 -->
+    <div class="center-wrap" aria-hidden="false">
+      <div class="big-heart" role="img" aria-label="跳动的心">
+        <div class="heart-shape"></div>
+      </div>
+      <div class="center-text">我爱你</div>
+    </div>
+
+    <div class="brand">你的品牌 / 心动时刻</div>
+  </div>
+
+<script>
+/*
+  说明：
+  - 本脚本在页面中动态生成大量小爱心（floating-heart），
+    随机位置、大小、延迟与动画时长，营造满屏跳动效果。
+  - 可通过调整 HEART_COUNT 控制心的数量。
+*/
+
+(function(){
+  const stage = document.getElementById('stage');
+  const HEART_COUNT = Math.min(120, Math.floor(window.innerWidth * 0.12)); // 根据屏幕宽度自适应
+  const colors = ['#ff6b81','#ff385c','#ff477e','#ff85a1','#ff2d55'];
+
+  function rand(min, max){
+    return Math.random() * (max - min) + min;
+  }
+
+  for(let i=0;i<HEART_COUNT;i++){
+    const el = document.createElement('div');
+    el.className = 'floating-heart';
+    // 大小
+    const size = rand(10, 28);
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    // 初始位置（从下方或中间随机出现）
+    const left = rand(0, 100);
+    const bottom = rand(-10, 20);
+    el.style.left = left + 'vw';
+    el.style.bottom = bottom + 'vh';
+    // 随机颜色
+    const color = colors[Math.floor(rand(0, colors.length))];
+    el.style.setProperty('--heart-color', color);
+    el.style.setProperty('background', 'transparent');
+    // 伪元素颜色通过 box-shadow hack 不可直接控制，改为内联样式 via background-image
+    el.style.setProperty('--heart-red', color);
+    // 随机持续时间和延迟
+    const duration = rand(4.5, 10);
+    const delay = rand(-duration, 2);
+    el.style.animation = `floatUp ${duration}s linear ${delay}s forwards, sway ${rand(2,6)}s ease-in-out ${rand(0,3)}s infinite`;
+    el.style.opacity = 0;
+    // 给伪元素变色：通过动态插入内部 element 来代替伪元素
+    const heartInner = document.createElement('div');
+    heartInner.style.width = '100%';
+    heartInner.style.height = '100%';
+    heartInner.style.position = 'absolute';
+    heartInner.style.left = 0;
+    heartInner.style.top = 0;
+    heartInner.style.transform = 'rotate(-45deg)';
+    heartInner.style.background = `linear-gradient(135deg, ${color}, ${shade(color, -20)})`;
+    heartInner.style.borderRadius = '30% 60% 60% 30%';
+    // 用两个小圆来拼出心（用两个伪元素的替代）
+    const c1 = document.createElement('div');
+    const c2 = document.createElement('div');
+    [c1,c2].forEach((c)=>{
+      c.style.position='absolute';
+      c.style.width = '100%';
+      c.style.height = '100%';
+      c.style.borderRadius = '50%';
+      c.style.background = `linear-gradient(135deg, ${color}, ${shade(color, -20)})`;
+    });
+    c1.style.left = '50%';
+    c1.style.top = '0';
+    c1.style.transform = 'translateX(-50%)';
+    c2.style.top = '50%';
+    c2.style.left = '0';
+    c2.style.transform = 'translateY(-50%)';
+    // 清空 el 并插入结构
+    el.appendChild(c1);
+    el.appendChild(c2);
+    el.appendChild(heartInner);
+
+    // 随机微小缩放抖动
+    el.style.transition = 'transform .2s linear';
+
+    stage.appendChild(el);
+
+    // 随机在动画过程中做些scale变化以营造“跳动”的感觉
+    (function(h){
+      const t = rand(800, 3000);
+      setInterval(() => {
+        h.style.transform = `scale(${rand(0.9,1.15)})`;
+      }, t);
+    })(el);
+  }
+
+  // 简单色值变暗函数
+  function shade(hex, percent) {
+    // hex like #rrggbb
+    const c = hex.replace('#','');
+    const num = parseInt(c,16);
+    let r = (num >> 16) + Math.round(255 * (percent/100));
+    let g = ((num >> 8) & 0x00FF) + Math.round(255 * (percent/100));
+    let b = (num & 0x0000FF) + Math.round(255 * (percent/100));
+    r = Math.max(0,Math.min(255,r));
+    g = Math.max(0,Math.min(255,g));
+    b = Math.max(0,Math.min(255,b));
+    return '#' + ((1<<24) + (r<<16) + (g<<8) + b).toString(16).slice(1);
+  }
+
+  // 自适应：窗口大小变化时微调心的数量（不刷新页面）
+  window.addEventListener('resize', () => {
+    // 简单处理：不动态增/减心，页面刷新即可得到新的分布
+  });
+
+})();
+</script>
+</body>
+</html>
